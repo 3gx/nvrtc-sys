@@ -38,7 +38,21 @@ mod tests {
 					          res, retsz);
 					return;
 				}
-				println!("program log is {} bytes.", size);
+				// GetProgramLog will write into a string of length 'size'.  So we need
+				// to create a block of memory of length 'size':
+				let mut log: Vec<raw::c_char> = vec![];
+				log.resize(size+1, 0);
+				let retlog: nvrtcResult = nvrtcGetProgramLog($prg, log.as_mut_ptr());
+				if retlog != nvrtcResult::NVRTC_SUCCESS {
+					eprintln!("after error {:?}, error {:?} getting {}-byte program log",
+					          res, retlog, size);
+				}
+				// There's probably some cleaner (mem::transmute?) way to convert a
+				// sequence of raw bytes into a proper rust string so that we can print
+				// it.  Contributions welcome.
+				let asu8: Vec<u8> = log.into_iter().map(|v| v as u8).collect();
+				let ruststr: String = String::from_utf8_unchecked(asu8);
+				println!("nvrtc: {}", ruststr);
 			}
 		})
 	}
