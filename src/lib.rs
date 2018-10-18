@@ -13,7 +13,7 @@ mod tests {
 			"	if(i >= n) {\n" +
 			"		return;\n" +
 			"	}\n" +
-			"	out[i] = a[i] + b[i]\n" +
+			"	out[i] = a[i] + b[i];\n" +
 			"}\n"
 		).unwrap();
 	}
