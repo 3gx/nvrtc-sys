@@ -3,6 +3,7 @@ name = "nvrtc-sys"
 version = "0.1.0"
 authors = ["Tom Fogal <tfogal@sci.utah.edu>"]
 build = "build.rs"
+license = "BSD-3-Clause"
 
 [dependencies]
 
