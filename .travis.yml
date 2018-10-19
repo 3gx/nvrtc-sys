@@ -6,6 +6,7 @@ rust:
 matrix:
   allow_failures:
     - rust: nightly
-before_install:
-	- sudo apt-get update
-	- sudo apt-get install -y nvidia-cuda-dev
+addons:
+  apt:
+    packages:
+    - nvidia-cuda-dev
