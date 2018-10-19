@@ -4,6 +4,8 @@ version = "0.1.0"
 authors = ["Tom Fogal <tfogal@sci.utah.edu>"]
 build = "build.rs"
 license = "BSD-3-Clause"
+keywords = ["nvidia", "cuda", "GPU", "GPGPU"]
+categories = ["external-ffi-bindings"]
 
 [dependencies]
 
