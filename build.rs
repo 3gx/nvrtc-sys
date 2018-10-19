@@ -4,7 +4,7 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-	let cuda_path = PathBuf::from(match env::var("CUDA_HOME") {
+	let cuda_path = PathBuf::from(match env::var("CUDA_PATH") {
 		Ok(chome) => chome,
 		Err(_) => "/usr/local/cuda".to_string()
 	});
