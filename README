@@ -1,0 +1,6 @@
+Raw wrappers to NVIDIA's nvrtc library.  See:
+
+  https://docs.nvidia.com/cuda/nvrtc/index.html
+
+In short, you can give this a string of CUDA code, and it will give back the
+compiled object.
