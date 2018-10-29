@@ -26,33 +26,69 @@ mod tests {
 		})
 	}
 
+	fn log(pgm: nvrtcProgram) -> String {
+		let mut size : usize = 0;
+		let sizeptr: *mut usize = &mut size as *mut usize;
+		unsafe {
+			let retsz: nvrtcResult = nvrtcGetProgramLogSize(pgm, sizeptr);
+			if retsz != nvrtcResult::NVRTC_SUCCESS {
+				return format!("error ({:?}) getting program log size", retsz);
+			}
+		}
+		// GetProgramLog will write into a string of length 'size'.  So we need
+		// to create a block of memory of length 'size':
+		let mut log: Vec<raw::c_char> = vec![];
+		log.resize(size+1, 0);
+		unsafe {
+			let retlog: nvrtcResult = nvrtcGetProgramLog(pgm, log.as_mut_ptr());
+			if retlog != nvrtcResult::NVRTC_SUCCESS {
+				eprintln!("error {:?} getting {}-byte program log", retlog, size);
+			}
+		}
+		// There's probably some cleaner (mem::transmute?) way to convert a
+		// sequence of raw bytes into a proper rust string so that we can print
+		// it.  Contributions welcome.
+		let asu8: Vec<u8> = log.into_iter().map(|v| v as u8).collect();
+		unsafe {
+			let ruststr: String = String::from_utf8_unchecked(asu8);
+			return ruststr;
+		}
+	}
+
+	fn ptx(pgm: nvrtcProgram) -> String {
+		let mut size : usize = 0;
+		let sizeptr: *mut usize = &mut size as *mut usize;
+		unsafe {
+			let retsz: nvrtcResult = nvrtcGetPTXSize(pgm, sizeptr);
+			if retsz != nvrtcResult::NVRTC_SUCCESS {
+				return format!("error ({:?}) getting PTX size", retsz);
+			}
+		}
+		// GetProgramLog will write into a string of length 'size'.  So we need
+		// to create a block of memory of length 'size':
+		let mut log: Vec<raw::c_char> = vec![];
+		log.resize(size+1, 0);
+		unsafe {
+			let retlog: nvrtcResult = nvrtcGetPTX(pgm, log.as_mut_ptr());
+			if retlog != nvrtcResult::NVRTC_SUCCESS {
+				eprintln!("error {:?} getting {}-byte PTX", retlog, size);
+			}
+		}
+		// There's probably some cleaner (mem::transmute?) way to convert a
+		// sequence of raw bytes into a proper rust string so that we can print
+		// it.  Contributions welcome.
+		let asu8: Vec<u8> = log.into_iter().map(|v| v as u8).collect();
+		unsafe {
+			let ruststr: String = String::from_utf8_unchecked(asu8);
+			return ruststr;
+		}
+	}
+
 	macro_rules! compile {
 		($prg:expr, $call:expr) => ({
 			let res: nvrtcResult = $call;
 			if res != nvrtcResult::NVRTC_SUCCESS {
-				let mut size : usize = 0;
-				let sizeptr: *mut usize = &mut size as *mut usize;
-				let retsz: nvrtcResult = nvrtcGetProgramLogSize($prg, sizeptr);
-				if retsz != nvrtcResult::NVRTC_SUCCESS {
-					eprintln!("after error {:?}, error {:?} getting program log size",
-					          res, retsz);
-					return;
-				}
-				// GetProgramLog will write into a string of length 'size'.  So we need
-				// to create a block of memory of length 'size':
-				let mut log: Vec<raw::c_char> = vec![];
-				log.resize(size+1, 0);
-				let retlog: nvrtcResult = nvrtcGetProgramLog($prg, log.as_mut_ptr());
-				if retlog != nvrtcResult::NVRTC_SUCCESS {
-					eprintln!("after error {:?}, error {:?} getting {}-byte program log",
-					          res, retlog, size);
-				}
-				// There's probably some cleaner (mem::transmute?) way to convert a
-				// sequence of raw bytes into a proper rust string so that we can print
-				// it.  Contributions welcome.
-				let asu8: Vec<u8> = log.into_iter().map(|v| v as u8).collect();
-				let ruststr: String = String::from_utf8_unchecked(asu8);
-				println!("nvrtc: {}", ruststr);
+				eprintln!("error compiling program: {}", log($prg));
 			}
 		})
 	}
